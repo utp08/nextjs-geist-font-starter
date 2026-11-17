@@ -3,46 +3,55 @@
 Dashboard (`/`) membaca `public/data/ccm_dashboard.json`.
 File itu dibuat oleh `scripts/build_ccm_data.py` dari raw data di folder ini.
 
-## Cara update (mingguan / bulanan)
+## Update mingguan
 
-1. Taruh export tiket CCM di `data/raw/tickets.xlsx` (atau `tickets.csv`). Satu baris = satu tiket.
-2. Tambah baris bulan baru di `data/raw/subscribers.csv`.
-3. (Opsional) Edit teks highlight di `data/raw/highlights.txt`.
-4. Jalankan:
+1. Simpan export raw tiket mingguan (mis. `R09_Raw_T27_T30__Ticket30_27092026-03102026.xlsx`)
+   ke **`data/raw/weekly/`**. File minggu-minggu sebelumnya **jangan dihapus**: script
+   menggabungkan semua file dan memakai versi tiket terbaru (dedup per `Order ID`).
+2. Awal bulan: tambah baris bulan baru di `data/raw/subscribers.csv`.
+   Selama belum diisi, dashboard memakai subscriber bulan sebelumnya (ditandai di KPI).
+3. Update teks highlight di `data/raw/highlights.txt`.
+4. Jalankan, lalu klik **Muat ulang data** di dashboard:
 
    ```bash
    pip install pandas openpyxl
-   python scripts/build_ccm_data.py --week W44
+   python scripts/build_ccm_data.py
    ```
 
-5. Buka dashboard dan klik **Muat ulang data**.
+   `--report-month 2026-09` untuk melihat bulan tertentu (default: bulan terakhir di raw data).
 
-`--report-month 2026-10` untuk memilih bulan laporan; default = bulan terakhir di data tiket.
+> Folder `data/raw/weekly/` dan semua `.xlsx` di `data/raw/` di-ignore git, karena berisi data
+> pelanggan (MSISDN, nama). Yang di-commit hanya JSON hasil agregasi.
 
-## Kolom yang dibutuhkan
+## Sumber angka per bulan
 
-| Kolom | Wajib | Isi |
-|---|---|---|
-| `ticket_id` | ya | ID tiket (duplikat dibuang) |
-| `create_date` | ya | Tanggal create tiket (`2026-09-12`, `12/09/2026 08:15`, dll.) |
-| `kabupaten` | ya | Nama kabupaten/kota |
-| `site_id` | | SITEID (untuk Repetitive SITEID) |
-| `rca` | | Availability / Capacity / Coverage / Quality / Others; kosong = *No feedback* |
-| `sqa_rca` | | RCA detail untuk tiket yang di-assign ke SQA (Power Problem, Bad coverage, …) |
-| `is_va` | | 1/0, Y/N, TRUE/FALSE: tiket dari Virtual Assistant (Veronika) |
+- Bulan yang **lengkap tercakup** raw data (dari tanggal 1) dihitung dari raw.
+- Bulan sebelum raw data mulai diambil dari **`data/raw/history_monthly.csv`**
+  (Oct'25–Sep'26 diisi dari deck W40). Kalau ada export lama, taruh saja di `weekly/`
+  dan bulan itu otomatis dihitung dari raw.
+- **Bulan berjalan (MTD)**: OKR ratio memakai **proyeksi run-rate**
+  (tiket MTD ÷ hari berjalan × jumlah hari sebulan).
 
-Nama header di export berbeda? Ubah `COLUMN_MAP` di bagian atas `scripts/build_ccm_data.py`.
-Contoh format: `data/raw/tickets_template.csv`.
+## Mapping kolom export (bisa diubah di `COLUMN_MAP` pada script)
 
-## Definisi (bisa diubah di bagian CONFIG script)
+| Dipakai untuk | Kolom export |
+|---|---|
+| ID tiket | `Order ID` |
+| Tanggal tiket | `Create Time` |
+| Kabupaten | `Kabupaten/Kota(Create Ticket)`; kalau kosong, diisi dari SITEID yang sama di tiket lain |
+| SITEID (Repetitive) | `site_id1(L1 Assign)` → `Site ID(L2 Assign)` → `site_id2(L1 Assign)` |
+| RCA Regional | `Root Caused Category(L2 Assign)`; kosong = *No feedback* |
+| RCA tiket SQA | `Root Caused Tier 8(L2 Assign)` untuk `Dept` = `SQA` |
+| Status | `Business Status`; tiket `Cancel` tidak dihitung |
+| Tiket VA (Veronika) | **belum ada**: isi `is_va` di `COLUMN_MAP` kalau ada kolomnya |
 
-- **OKR Ratio** = tiket ÷ subscriber (tiket VA ikut dihitung, `INCLUDE_VA_IN_OKR`).
-- **BL (baseline)** = rata-rata `BASELINE_MONTHS` (default 2) bulan sebelum bulan laporan.
-  Dipakai di tabel Top 10 Kabupaten dan Ticket Daily Comparison.
+## Definisi (bagian CONFIG di script)
+
+- **OKR Ratio** = tiket ÷ subscriber.
+- **BL (baseline)** = rata-rata tiket harian pada `BASELINE_MONTHS` (default 2) bulan sebelum
+  bulan laporan, dikali jumlah hari yang dibandingkan (pro-rata untuk MTD). Hanya hari yang
+  ada di raw data yang dipakai; keterangan periodenya tampil di bawah judul tabel.
 - **Repetitive SITEID** = tiket pada SITEID yang punya ≥ 2 tiket di bulan yang sama
-  (`REPETITIVE_MODE = "site"` untuk menghitung jumlah site, bukan tiket).
+  (`REPETITIVE_MODE = "site"` untuk menghitung jumlah site).
 
 `subscribers.csv`: `month` (YYYY-MM), `subscriber` (angka absolut), `target_ratio` (contoh `5.27e-05` = 0.0053%).
-
-> `tickets.*` di folder ini di-ignore git (data pelanggan), jadi tidak ikut ter-commit.
-> Yang di-commit hanya JSON hasil agregasi.

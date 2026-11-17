@@ -41,6 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # raw CCM ticket exports (customer data) - only aggregated JSON is committed
-data/raw/tickets.csv
-data/raw/tickets.xlsx
-data/raw/tickets.xls
+data/raw/weekly/
+data/raw/*.xlsx
+data/raw/*.xls

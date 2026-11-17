@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { DailyChart, OkrRatioChart, OkrTicketChart, RcaRegionalChart, RepetitiveChart, SqaRcaChart } from "@/components/ccm/charts";
 import { KabupatenTable } from "@/components/ccm/KabupatenTable";
-import { C, fmtPct, fmtRatio, ratioPct, type CcmDashboardData } from "@/lib/ccm-data";
+import { C, fmtPct, fmtRatio, okrTicket, ratioPct, type CcmDashboardData } from "@/lib/ccm-data";
 
 const DATA_URL = "/data/ccm_dashboard.json";
 
@@ -61,9 +61,13 @@ export default function CcmMonitoringPage() {
   const okr = data.okr_trend;
   const cur = okr[okr.length - 1];
   const prev = okr[okr.length - 2];
-  const curRatio = cur ? ratioPct(cur.ticket, cur.subscriber) : 0;
+  const curRatio = cur ? ratioPct(okrTicket(cur), cur.subscriber) : 0;
   const curTarget = cur ? cur.target_ratio * 100 : 0;
-  const mom = cur && prev && prev.ticket ? ((cur.ticket - prev.ticket) / prev.ticket) * 100 : null;
+  // month-to-date is compared on its run-rate projection, not the raw partial count
+  const mom = cur && prev && prev.ticket ? ((okrTicket(cur) - prev.ticket) / prev.ticket) * 100 : null;
+  const days = data.meta.days_elapsed ?? 0;
+  const perDay = cur && days ? cur.ticket / days : null;
+  const blPerDay = data.top_kabupaten.total_baseline != null && days ? data.top_kabupaten.total_baseline / days : null;
   const rep = data.repetitive_siteid[data.repetitive_siteid.length - 1];
   const repPct = rep ? (rep.repetitive / Math.max(1, rep.repetitive + rep.not_repetitive)) * 100 : 0;
   const repPrev = data.repetitive_siteid[data.repetitive_siteid.length - 2];
@@ -79,10 +83,13 @@ export default function CcmMonitoringPage() {
             <h1 className="text-lg font-bold tracking-tight">
               CCM Monitoring <span className="font-normal text-[#52514e]">| Monthly Trend</span>
             </h1>
-            <p className="text-xs text-[#52514e]">{meta.region} · {meta.report_label}</p>
+            <p className="text-xs text-[#52514e]">
+              {meta.region} · {meta.report_label}
+              {meta.data_range ? <span className="text-[#8a8880]"> · raw data {meta.data_range}</span> : null}
+            </p>
           </div>
           <div className="flex items-center gap-3 text-xs text-[#52514e]">
-            <span>Data per {meta.generated_at}</span>
+            <span>Diproses {meta.generated_at}</span>
             <button
               onClick={load}
               className="inline-flex items-center gap-1.5 rounded-md border border-[#e3e2dd] px-2.5 py-1 hover:bg-[#f3f2ee]"
@@ -98,27 +105,40 @@ export default function CcmMonitoringPage() {
           <Kpi
             label={`Tiket CCM ${meta.report_month}`}
             value={cur ? cur.ticket.toLocaleString("id-ID") : "–"}
-            sub={mom != null ? `${mom > 0 ? "▲ +" : "▼ "}${mom.toFixed(0)}% vs ${prev.month}` : undefined}
+            sub={mom != null
+              ? `${cur.mtd ? `proyeksi ${cur.projected_ticket} · ` : ""}${mom > 0 ? "▲ +" : "▼ "}${mom.toFixed(0)}% vs ${prev.month}`
+              : undefined}
             tone={mom != null ? (mom > 0 ? "bad" : "good") : undefined}
           />
           <Kpi
-            label="OKR Ratio"
+            label={cur?.mtd ? "OKR Ratio (proyeksi)" : "OKR Ratio"}
             value={fmtRatio(curRatio)}
             sub={`${achieve ? "✓ Achieve" : "✕ Not achieve"} · target ${fmtRatio(curTarget)}`}
             tone={achieve ? "good" : "bad"}
           />
-          <Kpi label="Subscriber" value={cur ? (cur.subscriber / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 2 }) + " jt" : "–"} sub={cur?.month} />
+          <Kpi label="Subscriber" value={cur ? (cur.subscriber / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 2 }) + " jt" : "–"} sub={cur?.subscriber_estimated ? `pakai data ${prev?.month ?? "bulan lalu"} (belum update)` : cur?.month} />
           <Kpi
             label="% Repetitive SITEID"
             value={fmtPct(repPct)}
             sub={repPrevPct != null ? `${repPct - repPrevPct > 0 ? "▲ +" : "▼ "}${(repPct - repPrevPct).toFixed(1)} pt vs ${repPrev.month}` : undefined}
             tone={repPrevPct != null ? (repPct > repPrevPct ? "bad" : "good") : undefined}
           />
-          <Kpi
-            label="Share tiket VA"
-            value={meta.va_share != null ? fmtPct(meta.va_share * 100, 0) : "–"}
-            sub="Virtual Assistant (Veronika)"
-          />
+          {meta.has_va === false ? (
+            <Kpi
+              label="Rata-rata tiket / hari"
+              value={perDay != null ? perDay.toFixed(1) : "–"}
+              sub={perDay != null && blPerDay != null
+                ? `${perDay > blPerDay ? "▲" : "▼"} vs ${meta.baseline_label} ${blPerDay.toFixed(1)}/hari`
+                : `${days} hari data`}
+              tone={perDay != null && blPerDay != null ? (perDay > blPerDay ? "bad" : "good") : undefined}
+            />
+          ) : (
+            <Kpi
+              label="Share tiket VA"
+              value={meta.va_share != null ? fmtPct(meta.va_share * 100, 0) : "–"}
+              sub="Virtual Assistant (Veronika)"
+            />
+          )}
         </section>
 
         <Bullets title="Highlight" items={data.highlights.key_issues} />
@@ -131,20 +151,20 @@ export default function CcmMonitoringPage() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
-          <div className="xl:col-span-4 space-y-4">
-            <KabupatenTable data={data.top_kabupaten} monthLabel={meta.report_month} baselineLabel={meta.baseline_label} />
-          </div>
           <div className="xl:col-span-5 space-y-4">
+            <KabupatenTable data={data.top_kabupaten} monthLabel={meta.report_month} baselineLabel={meta.baseline_label} baselineNote={meta.baseline_note} />
+          </div>
+          <div className="xl:col-span-4 space-y-4">
             <Bullets title="Catatan" items={data.highlights.kabupaten_notes} />
-            <DailyChart data={data.daily} monthLabel={meta.report_month} baselineLabel={meta.baseline_label} />
+            <DailyChart data={data.daily} monthLabel={meta.report_month} baselineLabel={meta.baseline_label} hasVa={meta.has_va !== false} />
           </div>
           <div className="xl:col-span-3">
-            <SqaRcaChart data={data.sqa_rca} />
+            <SqaRcaChart data={data.sqa_rca} withoutRca={meta.sqa_without_rca} />
           </div>
         </div>
 
         <footer className="pt-2 pb-6 text-[11px] text-[#8a8880]">
-          Sumber: {meta.source}. Update data: taruh raw data di <code>data/raw/</code>, lalu jalankan{" "}
+          Sumber: {meta.source}. Update: taruh export mingguan di <code>data/raw/weekly/</code>, jalankan{" "}
           <code>python scripts/build_ccm_data.py</code> dan klik “Muat ulang data”.
         </footer>
       </main>

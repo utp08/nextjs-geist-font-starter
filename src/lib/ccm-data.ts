@@ -5,6 +5,14 @@ export interface OkrMonth {
   ticket: number;
   subscriber: number;
   target_ratio: number;
+  source?: "raw" | "history";
+  subscriber_estimated?: boolean;
+  /** Month-to-date (report month not finished yet). */
+  mtd?: boolean;
+  days_elapsed?: number;
+  days_in_month?: number;
+  /** Run-rate projection to full month: ticket / days_elapsed * days_in_month. */
+  projected_ticket?: number;
 }
 
 export interface RepetitiveMonth {
@@ -17,13 +25,13 @@ export type RcaMonth = { month: string } & Record<string, number | string>;
 
 export interface KabupatenRow {
   kabupaten: string;
-  baseline: number;
+  baseline: number | null;
   current: number;
 }
 
 export interface DailyPoint {
   day: number;
-  baseline: number;
+  baseline: number | null;
   current_all: number | null;
   current_non_va: number | null;
 }
@@ -35,7 +43,14 @@ export interface CcmDashboardData {
     report_label: string;
     baseline_label: string;
     baseline_months?: string[];
-    va_share?: number;
+    baseline_note?: string;
+    is_mtd?: boolean;
+    days_elapsed?: number;
+    days_in_month?: number;
+    has_va?: boolean;
+    va_share?: number | null;
+    sqa_without_rca?: number;
+    data_range?: string | null;
     generated_at: string;
     source: string;
   };
@@ -44,7 +59,7 @@ export interface CcmDashboardData {
   repetitive_siteid: RepetitiveMonth[];
   rca_categories: string[];
   rca_regional: RcaMonth[];
-  top_kabupaten: { total_baseline: number; total_current: number; rows: KabupatenRow[] };
+  top_kabupaten: { total_baseline: number | null; total_current: number; unknown_current?: number; rows: KabupatenRow[] };
   daily: DailyPoint[];
   sqa_rca: { rca: string; total: number }[];
 }
@@ -53,6 +68,9 @@ export interface CcmDashboardData {
 export function ratioPct(ticket: number, subscriber: number): number {
   return subscriber > 0 ? (ticket / subscriber) * 100 : 0;
 }
+
+/** Ticket count used for the OKR ratio: projected full month when month-to-date. */
+export const okrTicket = (m: OkrMonth) => (m.mtd && m.projected_ticket != null ? m.projected_ticket : m.ticket);
 
 export const fmtPct = (v: number, digits = 1) => `${v.toFixed(digits)}%`;
 export const fmtRatio = (v: number) => `${v.toFixed(4)}%`;

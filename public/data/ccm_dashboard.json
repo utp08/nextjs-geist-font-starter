@@ -1,13 +1,23 @@
 {
  "meta": {
   "region": "R09 Sulawesi",
-  "report_month": "Sep'26",
-  "report_label": "W40 · September 2026",
+  "report_month": "Oct'26 MTD",
+  "report_label": "W41 · October 2026 (MTD s/d 10 Oct)",
   "baseline_label": "BL",
-  "generated_at": "2026-10-01",
-  "source": "Seed: CCM_Analysis_R09_Sulawesi_W40_Sept_OKR.pptx (slide 1)",
-  "baseline_months": [],
-  "va_share": 0.3
+  "baseline_months": [
+   "Aug'26",
+   "Sep'26"
+  ],
+  "baseline_note": "BL = rata-rata harian 06 Sep–30 Sep 2026 (25 hari) × 10 hari (pro-rata MTD)",
+  "is_mtd": true,
+  "days_elapsed": 10,
+  "days_in_month": 31,
+  "has_va": false,
+  "va_share": null,
+  "sqa_without_rca": 26,
+  "data_range": "06 Sep 2026 – 10 Oct 2026",
+  "generated_at": "2026-11-17",
+  "source": "data/raw/weekly + history_monthly.csv (build_ccm_data.py)"
  },
  "highlights": {
   "key_issues": [
@@ -23,84 +33,96 @@
  },
  "okr_trend": [
   {
-   "month": "Oct'25",
-   "ticket": 570,
-   "subscriber": 9170207,
-   "target_ratio": 5.16e-05
-  },
-  {
    "month": "Nov'25",
    "ticket": 461,
    "subscriber": 9095575,
-   "target_ratio": 5.16e-05
+   "target_ratio": 5.16e-05,
+   "source": "history"
   },
   {
    "month": "Dec'25",
    "ticket": 458,
    "subscriber": 9298649,
-   "target_ratio": 5.16e-05
+   "target_ratio": 5.16e-05,
+   "source": "history"
   },
   {
    "month": "Jan'26",
    "ticket": 570,
    "subscriber": 9124407,
-   "target_ratio": 5.27e-05
+   "target_ratio": 5.27e-05,
+   "source": "history"
   },
   {
    "month": "Feb'26",
    "ticket": 406,
    "subscriber": 8599114,
-   "target_ratio": 5.27e-05
+   "target_ratio": 5.27e-05,
+   "source": "history"
   },
   {
    "month": "Mar'26",
    "ticket": 432,
    "subscriber": 9157695,
-   "target_ratio": 5.27e-05
+   "target_ratio": 5.27e-05,
+   "source": "history"
   },
   {
    "month": "Apr'26",
    "ticket": 477,
    "subscriber": 8839381,
-   "target_ratio": 5.27e-05
+   "target_ratio": 5.27e-05,
+   "source": "history"
   },
   {
    "month": "May'26",
    "ticket": 456,
    "subscriber": 8771707,
-   "target_ratio": 5.27e-05
+   "target_ratio": 5.27e-05,
+   "source": "history"
   },
   {
    "month": "Jun'26",
    "ticket": 370,
    "subscriber": 8792919,
-   "target_ratio": 5.27e-05
+   "target_ratio": 5.27e-05,
+   "source": "history"
   },
   {
    "month": "Jul'26",
    "ticket": 380,
    "subscriber": 8793510,
-   "target_ratio": 5.27e-05
+   "target_ratio": 5.27e-05,
+   "source": "history"
   },
   {
    "month": "Aug'26",
    "ticket": 371,
    "subscriber": 8882654,
-   "target_ratio": 5.673521985395364e-05
+   "target_ratio": 5.673521985395364e-05,
+   "source": "history"
   },
   {
    "month": "Sep'26",
    "ticket": 539,
    "subscriber": 8767598,
-   "target_ratio": 5.673521985395364e-05
+   "target_ratio": 5.673521985395364e-05,
+   "source": "history"
+  },
+  {
+   "month": "Oct'26",
+   "ticket": 153,
+   "subscriber": 8767598,
+   "target_ratio": 5.673521985395364e-05,
+   "source": "raw",
+   "subscriber_estimated": true,
+   "mtd": true,
+   "days_elapsed": 10,
+   "days_in_month": 31,
+   "projected_ticket": 474
   }
  ],
  "repetitive_siteid": [
-  {
-   "month": "Jan'26",
-   "not_repetitive": 402,
-   "repetitive": 64
-  },
   {
    "month": "Feb'26",
    "not_repetitive": 331,
@@ -140,6 +162,11 @@
    "month": "Sep'26",
    "not_repetitive": 393,
    "repetitive": 66
+  },
+  {
+   "month": "Oct'26 MTD",
+   "not_repetitive": 113,
+   "repetitive": 25
   }
  ],
  "rca_categories": [
@@ -151,15 +178,6 @@
   "Quality"
  ],
  "rca_regional": [
-  {
-   "month": "Jan'26",
-   "No feedback": 408,
-   "Availability": 41,
-   "Capacity": 59,
-   "Coverage": 22,
-   "Others": 55,
-   "Quality": 17
-  },
   {
    "month": "Feb'26",
    "No feedback": 266,
@@ -231,291 +249,297 @@
    "Coverage": 15,
    "Others": 70,
    "Quality": 12
+  },
+  {
+   "month": "Oct'26 MTD",
+   "No feedback": 26,
+   "Availability": 21,
+   "Capacity": 46,
+   "Coverage": 18,
+   "Others": 6,
+   "Quality": 36
   }
  ],
  "top_kabupaten": {
-  "total_baseline": 538,
-  "total_current": 527,
+  "total_baseline": 209.2,
+  "total_current": 153,
+  "unknown_current": 18,
   "rows": [
    {
     "kabupaten": "KOTA MAKASSAR",
-    "baseline": 104,
-    "current": 88
+    "baseline": 28.8,
+    "current": 15
    },
    {
-    "kabupaten": "HALMAHERA SELATAN",
-    "baseline": 12,
-    "current": 34
-   },
-   {
-    "kabupaten": "KOTA KENDARI",
-    "baseline": 19,
-    "current": 32
-   },
-   {
-    "kabupaten": "MOROWALI",
-    "baseline": 11,
-    "current": 29
+    "kabupaten": "KONAWE SELATAN",
+    "baseline": 3.6,
+    "current": 10
    },
    {
     "kabupaten": "MAROS",
-    "baseline": 12,
-    "current": 20
-   },
-   {
-    "kabupaten": "GOWA",
-    "baseline": 17,
-    "current": 19
-   },
-   {
-    "kabupaten": "HALMAHERA TENGAH",
-    "baseline": 9,
-    "current": 16
-   },
-   {
-    "kabupaten": "PARIGI MOUTONG",
-    "baseline": 4,
-    "current": 13
-   },
-   {
-    "kabupaten": "LUWU",
-    "baseline": 7,
-    "current": 13
+    "baseline": 7.6,
+    "current": 8
    },
    {
     "kabupaten": "KOTA PALU",
-    "baseline": 10,
-    "current": 12
+    "baseline": 4.4,
+    "current": 6
+   },
+   {
+    "kabupaten": "BOMBANA",
+    "baseline": 0.8,
+    "current": 5
+   },
+   {
+    "kabupaten": "KOLAKA",
+    "baseline": 3.6,
+    "current": 4
+   },
+   {
+    "kabupaten": "PINRANG",
+    "baseline": 0.8,
+    "current": 4
+   },
+   {
+    "kabupaten": "KOTA KENDARI",
+    "baseline": 11.2,
+    "current": 4
+   },
+   {
+    "kabupaten": "HALMAHERA SELATAN",
+    "baseline": 14.0,
+    "current": 4
+   },
+   {
+    "kabupaten": "KOLAKA UTARA",
+    "baseline": 1.6,
+    "current": 3
    }
   ]
  },
  "daily": [
   {
    "day": 1,
-   "baseline": 13,
+   "baseline": null,
    "current_all": 11,
-   "current_non_va": 9
+   "current_non_va": null
   },
   {
    "day": 2,
-   "baseline": 20.5,
-   "current_all": 22,
-   "current_non_va": 14
+   "baseline": null,
+   "current_all": 16,
+   "current_non_va": null
   },
   {
    "day": 3,
-   "baseline": 12.5,
-   "current_all": 18,
-   "current_non_va": 15
+   "baseline": null,
+   "current_all": 14,
+   "current_non_va": null
   },
   {
    "day": 4,
-   "baseline": 17,
-   "current_all": 7,
-   "current_non_va": 4
+   "baseline": null,
+   "current_all": 10,
+   "current_non_va": null
   },
   {
    "day": 5,
-   "baseline": 17.5,
-   "current_all": 15,
-   "current_non_va": 13
+   "baseline": null,
+   "current_all": 8,
+   "current_non_va": null
   },
   {
    "day": 6,
-   "baseline": 16,
-   "current_all": 11,
-   "current_non_va": 5
+   "baseline": 11.0,
+   "current_all": 20,
+   "current_non_va": null
   },
   {
    "day": 7,
-   "baseline": 14.5,
-   "current_all": 17,
-   "current_non_va": 7
+   "baseline": 17.0,
+   "current_all": 28,
+   "current_non_va": null
   },
   {
    "day": 8,
-   "baseline": 13,
-   "current_all": 10,
-   "current_non_va": 8
+   "baseline": 13.0,
+   "current_all": 7,
+   "current_non_va": null
   },
   {
    "day": 9,
-   "baseline": 19.5,
-   "current_all": 22,
-   "current_non_va": 11
+   "baseline": 25.0,
+   "current_all": 24,
+   "current_non_va": null
   },
   {
    "day": 10,
-   "baseline": 16.5,
-   "current_all": 18,
-   "current_non_va": 12
+   "baseline": 19.0,
+   "current_all": 15,
+   "current_non_va": null
   },
   {
    "day": 11,
-   "baseline": 16,
-   "current_all": 19,
-   "current_non_va": 14
+   "baseline": 22.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 12,
-   "baseline": 28,
-   "current_all": 42,
-   "current_non_va": 32
+   "baseline": 42.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 13,
-   "baseline": 21.5,
-   "current_all": 26,
-   "current_non_va": 20
+   "baseline": 32.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 14,
-   "baseline": 17.5,
-   "current_all": 17,
-   "current_non_va": 13
+   "baseline": 23.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 15,
-   "baseline": 16,
-   "current_all": 19,
-   "current_non_va": 14
+   "baseline": 23.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 16,
-   "baseline": 16,
-   "current_all": 7,
-   "current_non_va": 5
+   "baseline": 11.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 17,
-   "baseline": 16,
-   "current_all": 20,
-   "current_non_va": 14
+   "baseline": 25.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 18,
-   "baseline": 19,
-   "current_all": 13,
-   "current_non_va": 11
+   "baseline": 16.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 19,
-   "baseline": 22.5,
-   "current_all": 17,
-   "current_non_va": 10
+   "baseline": 18.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 20,
-   "baseline": 9.5,
-   "current_all": 12,
-   "current_non_va": 9
+   "baseline": 16.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 21,
-   "baseline": 21,
-   "current_all": 35,
-   "current_non_va": 25
+   "baseline": 36.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 22,
-   "baseline": 22,
-   "current_all": 23,
-   "current_non_va": 18
+   "baseline": 24.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 23,
-   "baseline": 15,
-   "current_all": 18,
-   "current_non_va": 8
+   "baseline": 18.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 24,
-   "baseline": 14,
-   "current_all": 26,
-   "current_non_va": 15
+   "baseline": 28.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 25,
-   "baseline": 25,
-   "current_all": 10,
-   "current_non_va": 9
+   "baseline": 15.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 26,
-   "baseline": 22,
-   "current_all": 21,
-   "current_non_va": 14
+   "baseline": 26.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 27,
-   "baseline": 18,
-   "current_all": 26,
-   "current_non_va": 15
+   "baseline": 29.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 28,
-   "baseline": 19,
-   "current_all": 14,
-   "current_non_va": 13
+   "baseline": 16.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 29,
-   "baseline": 14,
-   "current_all": 7,
-   "current_non_va": 6
+   "baseline": 10.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 30,
-   "baseline": 14,
-   "current_all": 4,
-   "current_non_va": 4
+   "baseline": 8.0,
+   "current_all": null,
+   "current_non_va": null
   },
   {
    "day": 31,
-   "baseline": 17,
+   "baseline": null,
    "current_all": null,
    "current_non_va": null
   }
  ],
  "sqa_rca": [
   {
-   "rca": "No issue found",
-   "total": 65
+   "rca": "Improper Parameter in RAN Coverage",
+   "total": 12
   },
   {
-   "rca": "Power Problem",
-   "total": 46
-  },
-  {
-   "rca": "High util, shape coverage",
-   "total": 17
-  },
-  {
-   "rca": "Bad coverage",
-   "total": 15
-  },
-  {
-   "rca": "PRB Unbalance",
-   "total": 14
-  },
-  {
-   "rca": "RCI Invest/High util",
-   "total": 10
-  },
-  {
-   "rca": "Coverage optim",
-   "total": 8
-  },
-  {
-   "rca": "Packet Loss",
+   "rca": "Improper Parameter in RAN Capacity",
    "total": 6
   },
   {
-   "rca": "Improper parameter",
+   "rca": "High Utilization",
+   "total": 3
+  },
+  {
+   "rca": "Battery Backup Degraded",
+   "total": 3
+  },
+  {
+   "rca": "User Profile",
+   "total": 2
+  },
+  {
+   "rca": "External Power Source Problem",
+   "total": 2
+  },
+  {
+   "rca": "Improper Parameter in Transport",
    "total": 1
   },
   {
-   "rca": "HW issue",
+   "rca": "Power System Failure",
+   "total": 1
+  },
+  {
+   "rca": "Objective Coverage",
    "total": 1
   }
  ]

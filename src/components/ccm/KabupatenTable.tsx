@@ -6,11 +6,13 @@ interface Props {
   data: CcmDashboardData["top_kabupaten"];
   monthLabel: string;
   baselineLabel: string;
+  baselineNote?: string;
 }
 
-const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
+const fmt = (v: number | null) => (v == null ? "–" : Number.isInteger(v) ? String(v) : v.toFixed(1));
+const share = (v: number | null, total: number | null) => (v == null || !total ? "–" : `${((v / total) * 100).toFixed(2)}%`);
 
-export function KabupatenTable({ data, monthLabel, baselineLabel }: Props) {
+export function KabupatenTable({ data, monthLabel, baselineLabel, baselineNote }: Props) {
   const maxCur = Math.max(1, ...data.rows.map((r) => r.current));
   return (
     <section className="rounded-xl border border-[#e3e2dd] bg-white p-4">
@@ -18,6 +20,7 @@ export function KabupatenTable({ data, monthLabel, baselineLabel }: Props) {
       <p className="text-xs text-[#52514e] mt-0.5">
         {monthLabel}: {data.total_current} tiket · {baselineLabel}: {fmt(data.total_baseline)} tiket (Create Ticket)
       </p>
+      {baselineNote && <p className="text-[11px] text-[#8a8880] mt-0.5">{baselineNote}</p>}
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-xs tabular-nums">
           <thead>
@@ -36,26 +39,26 @@ export function KabupatenTable({ data, monthLabel, baselineLabel }: Props) {
           </thead>
           <tbody>
             {data.rows.map((r) => {
-              const delta = r.current - r.baseline;
-              const up = delta > 0;
+              const delta = r.baseline == null ? null : Math.round((r.current - r.baseline) * 10) / 10;
+              const up = delta != null && delta > 0;
               return (
                 <tr key={r.kabupaten} className="border-b border-[#f0efec] hover:bg-[#faf9f7]">
                   <td className="py-1.5 pr-2 font-medium text-[#0b0b0b] whitespace-nowrap">{r.kabupaten}</td>
                   <td className="py-1.5 px-2 text-right text-[#52514e] border-l border-[#f0efec]">{fmt(r.baseline)}</td>
                   <td className="py-1.5 px-2 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <span className="hidden sm:inline-block h-1.5 rounded-full" style={{ width: `${(r.current / maxCur) * 48}px`, background: C.s1 }} />
+                      <span className="hidden sm:inline-block xl:hidden 2xl:inline-block h-1.5 rounded-full" style={{ width: `${(r.current / maxCur) * 48}px`, background: C.s1 }} />
                       <span className="font-semibold text-[#0b0b0b] w-7">{r.current}</span>
                     </div>
                   </td>
-                  <td className="py-1.5 px-2 text-right font-semibold whitespace-nowrap" style={{ color: delta === 0 ? C.ink2 : up ? C.critical : C.good }}>
-                    {delta === 0 ? "0" : `${up ? "▲ +" : "▼ "}${fmt(delta)}`}
+                  <td className="py-1.5 px-2 text-right font-semibold whitespace-nowrap" style={{ color: !delta ? C.ink2 : up ? C.critical : C.good }}>
+                    {delta == null ? "–" : delta === 0 ? "0" : `${up ? "▲ +" : "▼ "}${fmt(delta)}`}
                   </td>
                   <td className="py-1.5 px-2 text-right text-[#52514e] border-l border-[#f0efec]">
-                    {data.total_baseline ? ((r.baseline / data.total_baseline) * 100).toFixed(2) : "0.00"}%
+                    {share(r.baseline, data.total_baseline)}
                   </td>
                   <td className="py-1.5 px-2 text-right text-[#0b0b0b]">
-                    {data.total_current ? ((r.current / data.total_current) * 100).toFixed(2) : "0.00"}%
+                    {share(r.current, data.total_current)}
                   </td>
                 </tr>
               );
@@ -63,7 +66,10 @@ export function KabupatenTable({ data, monthLabel, baselineLabel }: Props) {
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-[11px] text-[#52514e]">▲ merah = tiket naik vs {baselineLabel} · ▼ hijau = turun</p>
+      <p className="mt-2 text-[11px] text-[#52514e]">
+        ▲ merah = tiket naik vs {baselineLabel} · ▼ hijau = turun
+        {data.unknown_current ? ` · ${data.unknown_current} tiket tanpa kabupaten (tidak diranking)` : ""}
+      </p>
     </section>
   );
 }
