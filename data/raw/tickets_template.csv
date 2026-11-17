@@ -1,0 +1,4 @@
+ticket_id,create_date,kabupaten,site_id,rca,sqa_rca,is_va
+CCM-0001,2026-09-12 08:15,KOTA MAKASSAR,MKS123,Availability,Power Problem,0
+CCM-0002,2026-09-12 09:40,KOTA MAKASSAR,MKS123,Availability,,1
+CCM-0003,2026-09-21 14:02,HALMAHERA SELATAN,TTE045,,,0

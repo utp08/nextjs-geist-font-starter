@@ -1,0 +1,522 @@
+{
+ "meta": {
+  "region": "R09 Sulawesi",
+  "report_month": "Sep'26",
+  "report_label": "W40 · September 2026",
+  "baseline_label": "BL",
+  "generated_at": "2026-10-01",
+  "source": "Seed: CCM_Analysis_R09_Sulawesi_W40_Sept_OKR.pptx (slide 1)",
+  "baseline_months": [],
+  "va_share": 0.3
+ },
+ "highlights": {
+  "key_issues": [
+   "September CCM surged (+45%), driven by the inclusion of Virtual Assistant (Veronika) tickets in OKR calculation, accounting for 30% of total tickets.",
+   "Target adjustment is needed, as the current baseline excludes VA tickets.",
+   "Key issues: Makassar FO cut (12–13 Sep), Halmahera SKKL disruption (19–28 Sep), and prolonged rolling blackouts across 5/7 NOPs."
+  ],
+  "kabupaten_notes": [
+   "Makassar had the largest reduction (-16), but remained the top CCM contributor.",
+   "Ticket spikes: 12 Sep (Makassar backbone FO cut) and 21–26 Sep (Halmahera Selatan SKKL issue).",
+   "Power issues remained a major contributor following rolling blackouts across 5/7 NOPs, with incomplete recovery."
+  ]
+ },
+ "okr_trend": [
+  {
+   "month": "Oct'25",
+   "ticket": 570,
+   "subscriber": 9170207,
+   "target_ratio": 5.16e-05
+  },
+  {
+   "month": "Nov'25",
+   "ticket": 461,
+   "subscriber": 9095575,
+   "target_ratio": 5.16e-05
+  },
+  {
+   "month": "Dec'25",
+   "ticket": 458,
+   "subscriber": 9298649,
+   "target_ratio": 5.16e-05
+  },
+  {
+   "month": "Jan'26",
+   "ticket": 570,
+   "subscriber": 9124407,
+   "target_ratio": 5.27e-05
+  },
+  {
+   "month": "Feb'26",
+   "ticket": 406,
+   "subscriber": 8599114,
+   "target_ratio": 5.27e-05
+  },
+  {
+   "month": "Mar'26",
+   "ticket": 432,
+   "subscriber": 9157695,
+   "target_ratio": 5.27e-05
+  },
+  {
+   "month": "Apr'26",
+   "ticket": 477,
+   "subscriber": 8839381,
+   "target_ratio": 5.27e-05
+  },
+  {
+   "month": "May'26",
+   "ticket": 456,
+   "subscriber": 8771707,
+   "target_ratio": 5.27e-05
+  },
+  {
+   "month": "Jun'26",
+   "ticket": 370,
+   "subscriber": 8792919,
+   "target_ratio": 5.27e-05
+  },
+  {
+   "month": "Jul'26",
+   "ticket": 380,
+   "subscriber": 8793510,
+   "target_ratio": 5.27e-05
+  },
+  {
+   "month": "Aug'26",
+   "ticket": 371,
+   "subscriber": 8882654,
+   "target_ratio": 5.673521985395364e-05
+  },
+  {
+   "month": "Sep'26",
+   "ticket": 539,
+   "subscriber": 8767598,
+   "target_ratio": 5.673521985395364e-05
+  }
+ ],
+ "repetitive_siteid": [
+  {
+   "month": "Jan'26",
+   "not_repetitive": 402,
+   "repetitive": 64
+  },
+  {
+   "month": "Feb'26",
+   "not_repetitive": 331,
+   "repetitive": 28
+  },
+  {
+   "month": "Mar'26",
+   "not_repetitive": 349,
+   "repetitive": 28
+  },
+  {
+   "month": "Apr'26",
+   "not_repetitive": 402,
+   "repetitive": 30
+  },
+  {
+   "month": "May'26",
+   "not_repetitive": 323,
+   "repetitive": 52
+  },
+  {
+   "month": "Jun'26",
+   "not_repetitive": 274,
+   "repetitive": 35
+  },
+  {
+   "month": "Jul'26",
+   "not_repetitive": 343,
+   "repetitive": 38
+  },
+  {
+   "month": "Aug'26",
+   "not_repetitive": 404,
+   "repetitive": 66
+  },
+  {
+   "month": "Sep'26",
+   "not_repetitive": 393,
+   "repetitive": 66
+  }
+ ],
+ "rca_categories": [
+  "No feedback",
+  "Availability",
+  "Capacity",
+  "Coverage",
+  "Others",
+  "Quality"
+ ],
+ "rca_regional": [
+  {
+   "month": "Jan'26",
+   "No feedback": 408,
+   "Availability": 41,
+   "Capacity": 59,
+   "Coverage": 22,
+   "Others": 55,
+   "Quality": 17
+  },
+  {
+   "month": "Feb'26",
+   "No feedback": 266,
+   "Availability": 28,
+   "Capacity": 41,
+   "Coverage": 8,
+   "Others": 64,
+   "Quality": 13
+  },
+  {
+   "month": "Mar'26",
+   "No feedback": 129,
+   "Availability": 87,
+   "Capacity": 86,
+   "Coverage": 21,
+   "Others": 112,
+   "Quality": 9
+  },
+  {
+   "month": "Apr'26",
+   "No feedback": 307,
+   "Availability": 38,
+   "Capacity": 50,
+   "Coverage": 6,
+   "Others": 86,
+   "Quality": 8
+  },
+  {
+   "month": "May'26",
+   "No feedback": 337,
+   "Availability": 41,
+   "Capacity": 33,
+   "Coverage": 15,
+   "Others": 40,
+   "Quality": 3
+  },
+  {
+   "month": "Jun'26",
+   "No feedback": 228,
+   "Availability": 40,
+   "Capacity": 46,
+   "Coverage": 13,
+   "Others": 47,
+   "Quality": 8
+  },
+  {
+   "month": "Jul'26",
+   "No feedback": 265,
+   "Availability": 53,
+   "Capacity": 41,
+   "Coverage": 19,
+   "Others": 78,
+   "Quality": 8
+  },
+  {
+   "month": "Aug'26",
+   "No feedback": 359,
+   "Availability": 66,
+   "Capacity": 53,
+   "Coverage": 23,
+   "Others": 98,
+   "Quality": 21
+  },
+  {
+   "month": "Sep'26",
+   "No feedback": 364,
+   "Availability": 96,
+   "Capacity": 56,
+   "Coverage": 15,
+   "Others": 70,
+   "Quality": 12
+  }
+ ],
+ "top_kabupaten": {
+  "total_baseline": 538,
+  "total_current": 527,
+  "rows": [
+   {
+    "kabupaten": "KOTA MAKASSAR",
+    "baseline": 104,
+    "current": 88
+   },
+   {
+    "kabupaten": "HALMAHERA SELATAN",
+    "baseline": 12,
+    "current": 34
+   },
+   {
+    "kabupaten": "KOTA KENDARI",
+    "baseline": 19,
+    "current": 32
+   },
+   {
+    "kabupaten": "MOROWALI",
+    "baseline": 11,
+    "current": 29
+   },
+   {
+    "kabupaten": "MAROS",
+    "baseline": 12,
+    "current": 20
+   },
+   {
+    "kabupaten": "GOWA",
+    "baseline": 17,
+    "current": 19
+   },
+   {
+    "kabupaten": "HALMAHERA TENGAH",
+    "baseline": 9,
+    "current": 16
+   },
+   {
+    "kabupaten": "PARIGI MOUTONG",
+    "baseline": 4,
+    "current": 13
+   },
+   {
+    "kabupaten": "LUWU",
+    "baseline": 7,
+    "current": 13
+   },
+   {
+    "kabupaten": "KOTA PALU",
+    "baseline": 10,
+    "current": 12
+   }
+  ]
+ },
+ "daily": [
+  {
+   "day": 1,
+   "baseline": 13,
+   "current_all": 11,
+   "current_non_va": 9
+  },
+  {
+   "day": 2,
+   "baseline": 20.5,
+   "current_all": 22,
+   "current_non_va": 14
+  },
+  {
+   "day": 3,
+   "baseline": 12.5,
+   "current_all": 18,
+   "current_non_va": 15
+  },
+  {
+   "day": 4,
+   "baseline": 17,
+   "current_all": 7,
+   "current_non_va": 4
+  },
+  {
+   "day": 5,
+   "baseline": 17.5,
+   "current_all": 15,
+   "current_non_va": 13
+  },
+  {
+   "day": 6,
+   "baseline": 16,
+   "current_all": 11,
+   "current_non_va": 5
+  },
+  {
+   "day": 7,
+   "baseline": 14.5,
+   "current_all": 17,
+   "current_non_va": 7
+  },
+  {
+   "day": 8,
+   "baseline": 13,
+   "current_all": 10,
+   "current_non_va": 8
+  },
+  {
+   "day": 9,
+   "baseline": 19.5,
+   "current_all": 22,
+   "current_non_va": 11
+  },
+  {
+   "day": 10,
+   "baseline": 16.5,
+   "current_all": 18,
+   "current_non_va": 12
+  },
+  {
+   "day": 11,
+   "baseline": 16,
+   "current_all": 19,
+   "current_non_va": 14
+  },
+  {
+   "day": 12,
+   "baseline": 28,
+   "current_all": 42,
+   "current_non_va": 32
+  },
+  {
+   "day": 13,
+   "baseline": 21.5,
+   "current_all": 26,
+   "current_non_va": 20
+  },
+  {
+   "day": 14,
+   "baseline": 17.5,
+   "current_all": 17,
+   "current_non_va": 13
+  },
+  {
+   "day": 15,
+   "baseline": 16,
+   "current_all": 19,
+   "current_non_va": 14
+  },
+  {
+   "day": 16,
+   "baseline": 16,
+   "current_all": 7,
+   "current_non_va": 5
+  },
+  {
+   "day": 17,
+   "baseline": 16,
+   "current_all": 20,
+   "current_non_va": 14
+  },
+  {
+   "day": 18,
+   "baseline": 19,
+   "current_all": 13,
+   "current_non_va": 11
+  },
+  {
+   "day": 19,
+   "baseline": 22.5,
+   "current_all": 17,
+   "current_non_va": 10
+  },
+  {
+   "day": 20,
+   "baseline": 9.5,
+   "current_all": 12,
+   "current_non_va": 9
+  },
+  {
+   "day": 21,
+   "baseline": 21,
+   "current_all": 35,
+   "current_non_va": 25
+  },
+  {
+   "day": 22,
+   "baseline": 22,
+   "current_all": 23,
+   "current_non_va": 18
+  },
+  {
+   "day": 23,
+   "baseline": 15,
+   "current_all": 18,
+   "current_non_va": 8
+  },
+  {
+   "day": 24,
+   "baseline": 14,
+   "current_all": 26,
+   "current_non_va": 15
+  },
+  {
+   "day": 25,
+   "baseline": 25,
+   "current_all": 10,
+   "current_non_va": 9
+  },
+  {
+   "day": 26,
+   "baseline": 22,
+   "current_all": 21,
+   "current_non_va": 14
+  },
+  {
+   "day": 27,
+   "baseline": 18,
+   "current_all": 26,
+   "current_non_va": 15
+  },
+  {
+   "day": 28,
+   "baseline": 19,
+   "current_all": 14,
+   "current_non_va": 13
+  },
+  {
+   "day": 29,
+   "baseline": 14,
+   "current_all": 7,
+   "current_non_va": 6
+  },
+  {
+   "day": 30,
+   "baseline": 14,
+   "current_all": 4,
+   "current_non_va": 4
+  },
+  {
+   "day": 31,
+   "baseline": 17,
+   "current_all": null,
+   "current_non_va": null
+  }
+ ],
+ "sqa_rca": [
+  {
+   "rca": "No issue found",
+   "total": 65
+  },
+  {
+   "rca": "Power Problem",
+   "total": 46
+  },
+  {
+   "rca": "High util, shape coverage",
+   "total": 17
+  },
+  {
+   "rca": "Bad coverage",
+   "total": 15
+  },
+  {
+   "rca": "PRB Unbalance",
+   "total": 14
+  },
+  {
+   "rca": "RCI Invest/High util",
+   "total": 10
+  },
+  {
+   "rca": "Coverage optim",
+   "total": 8
+  },
+  {
+   "rca": "Packet Loss",
+   "total": 6
+  },
+  {
+   "rca": "Improper parameter",
+   "total": 1
+  },
+  {
+   "rca": "HW issue",
+   "total": 1
+  }
+ ]
+}

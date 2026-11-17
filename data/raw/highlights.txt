@@ -1,0 +1,10 @@
+# Bullet text shown on the dashboard. One bullet per line.
+[key_issues]
+- September CCM surged (+45%), driven by the inclusion of Virtual Assistant (Veronika) tickets in OKR calculation, accounting for 30% of total tickets.
+- Target adjustment is needed, as the current baseline excludes VA tickets.
+- Key issues: Makassar FO cut (12–13 Sep), Halmahera SKKL disruption (19–28 Sep), and prolonged rolling blackouts across 5/7 NOPs.
+
+[kabupaten_notes]
+- Makassar had the largest reduction (-16), but remained the top CCM contributor.
+- Ticket spikes: 12 Sep (Makassar backbone FO cut) and 21–26 Sep (Halmahera Selatan SKKL issue).
+- Power issues remained a major contributor following rolling blackouts across 5/7 NOPs, with incomplete recovery.

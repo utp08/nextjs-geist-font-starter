@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "4G/5G Signal Monitor",
-  description: "Crowded Management Signal Dashboard for 4G and 5G Networks",
+  title: "CCM Monitoring R09 Sulawesi",
+  description: "Dashboard monitoring tiket komplain CCM Regional 09 Sulawesi",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="id">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
         {children}
       </body>
