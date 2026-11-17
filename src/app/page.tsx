@@ -4,6 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { DailyChart, OkrRatioChart, OkrTicketChart, RcaRegionalChart, RepetitiveChart, SqaRcaChart } from "@/components/ccm/charts";
 import { KabupatenTable } from "@/components/ccm/KabupatenTable";
+import dynamic from "next/dynamic";
+
+// Leaflet needs `window`, so the map only renders in the browser.
+const ComplaintMap = dynamic(() => import("@/components/ccm/ComplaintMap").then((m) => m.ComplaintMap), {
+  ssr: false,
+  loading: () => <div className="h-[560px] rounded-xl border border-[#e3e2dd] bg-white p-4 text-xs text-[#8a8880]">Memuat peta…</div>,
+});
 import { C, fmtPct, fmtRatio, okrTicket, ratioPct, type CcmDashboardData } from "@/lib/ccm-data";
 
 const DATA_URL = "/data/ccm_dashboard.json";
@@ -149,6 +156,16 @@ export default function CcmMonitoringPage() {
           <RepetitiveChart data={data.repetitive_siteid} />
           <RcaRegionalChart data={data.rca_regional} categories={data.rca_categories} />
         </div>
+
+        {data.map && data.map.points.length > 0 && (
+          <ComplaintMap
+            points={data.map.points}
+            months={data.map.months}
+            withoutCoords={data.map.without_coords}
+            categories={data.rca_categories}
+            defaultMonth={data.map.months[data.map.months.length - 1]}
+          />
+        )}
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
           <div className="xl:col-span-5 space-y-4">

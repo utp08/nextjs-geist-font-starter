@@ -55,8 +55,19 @@ COLUMN_MAP: dict[str, str | list[str] | None] = {
     "nop": "NOP",
     "status": "Business Status",
     "last_update": "Last Update Time",
-    "is_va": None,                                  # TODO: column that marks Virtual Assistant (Veronika) tickets
+    "is_va": None,                                  # explicit 1/0 VA column, if the export ever gets one
+    "description": "Description Fault Sumptomps(Create Ticket_description__fault_symptomps)",
+    "lat": "Latitude(L2 Assign)",                   # fallback when the description has no coordinates
+    "lng": "Longitude(L2 Assign)",
 }
+
+# VA (Veronika) tickets are recognised from "Case Owner : VA (Veronika)" in the description text.
+VA_CASE_OWNER_PATTERN = r"\bVA\b|veronika"
+
+# Complaint map
+MAP_MONTHS = 3                 # months of complaint points sent to the map (report month and earlier)
+MAP_DECIMALS = 3               # coordinates rounded to ~110 m (customer privacy)
+MAP_BBOX = (-9.0, 4.0, 116.0, 130.0)   # lat_min, lat_max, lng_min, lng_max (Sulawesi + Maluku Utara)
 REQUIRED = ("ticket_id", "create_date", "kabupaten")
 
 EXCLUDE_STATUS = {"cancel"}          # Business Status values left out of every count
@@ -125,6 +136,58 @@ def normalise(df: pd.DataFrame, source: str) -> pd.DataFrame:
     return out
 
 
+_NUM = r"(-?\d{1,3}[.,]\d+)"
+_COORD_PATTERNS = [
+    re.compile(r"Latitude\s*:\s*" + _NUM + r".*?Longitude\s*:\s*" + _NUM, re.S | re.I),
+    re.compile(r"[Kk]oordinat[^:\n]*:\s*" + _NUM + r"\s*[,;/ ]\s*" + _NUM),
+    re.compile(_NUM + r"\s*,\s*(1[12]\d[.,]\d{3,})"),
+]
+
+
+def in_bbox(lat: float, lng: float) -> bool:
+    a, b, c, d = MAP_BBOX
+    return a <= lat <= b and c <= lng <= d
+
+
+def fix_order(lat: float, lng: float) -> tuple[float, float] | None:
+    if in_bbox(lat, lng):
+        return lat, lng
+    if in_bbox(lng, lat):            # lat/lng typed the wrong way round
+        return lng, lat
+    return None
+
+
+def parse_coords(text: str) -> tuple[float, float] | None:
+    for pat in _COORD_PATTERNS:
+        m = pat.search(text)
+        if m:
+            try:
+                lat, lng = (float(x.replace(",", ".")) for x in m.groups())
+            except ValueError:
+                continue
+            fixed = fix_order(lat, lng)
+            if fixed:
+                return fixed
+    return None
+
+
+def add_location(df: pd.DataFrame) -> None:
+    """lat/lng from the description text, else from the L2 Assign lat/lng columns; None if unusable."""
+    lats, lngs, owners = [], [], []
+    for text, la, lo in zip(df["description"], df["lat"], df["lng"]):
+        c = parse_coords(text) if text else None
+        if c is None:
+            try:
+                c = fix_order(float(la.replace(",", ".")), float(lo.replace(",", ".")))
+            except (ValueError, AttributeError):
+                c = None
+        lats.append(c[0] if c else None)
+        lngs.append(c[1] if c else None)
+        m = re.search(r"Case Owner\s*:\s*([^\n]*)", text or "")
+        owners.append(m.group(1).strip() if m else "")
+    df["lat_f"], df["lng_f"], df["case_owner"] = lats, lngs, owners
+
+
 def load_tickets() -> pd.DataFrame | None:
     folder = RAW_DIR / "weekly"
     files = sorted([*folder.glob("*.xlsx"), *folder.glob("*.xls"), *folder.glob("*.csv")]) if folder.exists() else []
@@ -168,7 +231,13 @@ def load_tickets() -> pd.DataFrame | None:
     if blank.any():
         print(f"  kabupaten kosong: {int(blank.sum())} tiket, {filled} diisi dari SITEID, "
               f"{int((df['kabupaten'] == '').sum())} tetap kosong")
-    df["is_va"] = df["is_va"].str.lower().isin(TRUTHY)
+    add_location(df)
+    if COLUMN_MAP.get("is_va"):
+        df["is_va"] = df["is_va"].str.lower().isin(TRUTHY)
+    else:
+        df["is_va"] = df["case_owner"].str.contains(VA_CASE_OWNER_PATTERN, case=False, regex=True)
+    print(f"  VA (Veronika): {int(df['is_va'].sum())} tiket · koordinat valid: "
+          f"{int(df['lat_f'].notna().sum())} dari {len(df)} tiket")
     canon = {c.lower(): c for c in RCA_CATEGORIES}
     df["rca"] = df["rca"].map(lambda v: "No feedback" if v == "" else canon.get(v.lower(), "Others"))
     print(f"tickets: {len(df)} unique from {len(files)} file(s), "
@@ -231,6 +300,9 @@ def repetitive_counts(cur: pd.DataFrame) -> tuple[int, int]:
 
 
 # ------------------------------------------------------------------ build
+
+
+HAS_VA = True   # VA comes from Case Owner text unless COLUMN_MAP["is_va"] names a column
 
 
 def build(report_month: str | None) -> dict:
@@ -356,7 +428,7 @@ def build(report_month: str | None) -> dict:
                      for k, v in cur_k.head(TOP_N_KABUPATEN).items()],
         }
 
-        has_va = bool(COLUMN_MAP.get("is_va"))
+        has_va = HAS_VA
         cur_all = cur.groupby("day").size()
         cur_nva = cur[~cur["is_va"]].groupby("day").size()
         for d in range(1, 32):
@@ -380,6 +452,30 @@ def build(report_month: str | None) -> dict:
         sqa_rows = [{"rca": k, "total": int(v)} for k, v in sqa.loc[sqa["sqa_rca"] != "", "sqa_rca"].value_counts().items()]
         va_share = round(float(cur["is_va"].mean()), 4) if has_va and len(cur) else None
 
+    # 6. Complaint map --------------------------------------------------------
+    map_data = {"months": [], "points": [], "without_coords": {}}
+    if df is not None:
+        map_months = [rep - i for i in range(MAP_MONTHS - 1, -1, -1)]
+        sel = df[df["month"].isin(map_months)]
+        pts = sel[sel["lat_f"].notna()].sort_values("create_date")
+        map_data["months"] = [month_label(m) for m in map_months if (sel["month"] == m).any()]
+        map_data["without_coords"] = {month_label(m): int(((sel["month"] == m) & sel["lat_f"].isna()).sum())
+                                      for m in map_months}
+        map_data["points"] = [{
+            "lat": round(float(r.lat_f), MAP_DECIMALS),
+            "lng": round(float(r.lng_f), MAP_DECIMALS),
+            "date": r.create_date.strftime("%Y-%m-%d"),
+            "month": month_label(r.month),
+            "kab": r.kabupaten,
+            "kec": (r.kecamatan or "").upper(),
+            "site": r.site_id,
+            "rca": r.rca,
+            "rca_detail": r.sqa_rca,
+            "dept": r.dept,
+            "status": r.status,
+            "va": bool(r.is_va),
+        } for r in pts.itertuples()]
+
     rep_label = rep.strftime("%B %Y")
     week_ref = None if cov_end is None else min(cov_end, rep.end_time.normalize())
     week = f"W{week_ref.isocalendar().week}" if week_ref is not None else None
@@ -397,7 +493,7 @@ def build(report_month: str | None) -> dict:
             "is_mtd": is_mtd,
             "days_elapsed": days_elapsed,
             "days_in_month": days_in_rep,
-            "has_va": bool(COLUMN_MAP.get("is_va")),
+            "has_va": HAS_VA,
             "va_share": va_share,
             "sqa_without_rca": sqa_blank,
             "data_range": None if cov_start is None else f"{cov_start:%d %b %Y} – {cov_end:%d %b %Y}",
@@ -412,6 +508,7 @@ def build(report_month: str | None) -> dict:
         "top_kabupaten": top_kab,
         "daily": daily,
         "sqa_rca": sqa_rows,
+        "map": map_data,
     }
 
 

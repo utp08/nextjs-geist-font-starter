@@ -36,6 +36,21 @@ export interface DailyPoint {
   current_non_va: number | null;
 }
 
+export interface MapPoint {
+  lat: number;
+  lng: number;
+  date: string;
+  month: string;
+  kab: string;
+  kec: string;
+  site: string;
+  rca: string;
+  rca_detail: string;
+  dept: string;
+  status: string;
+  va: boolean;
+}
+
 export interface CcmDashboardData {
   meta: {
     region: string;
@@ -62,6 +77,7 @@ export interface CcmDashboardData {
   top_kabupaten: { total_baseline: number | null; total_current: number; unknown_current?: number; rows: KabupatenRow[] };
   daily: DailyPoint[];
   sqa_rca: { rca: string; total: number }[];
+  map?: { months: string[]; points: MapPoint[]; without_coords: Record<string, number> };
 }
 
 /** Ticket / subscriber ratio as the % shown in the OKR deck (e.g. 0.0062%). */

@@ -43,7 +43,15 @@ File itu dibuat oleh `scripts/build_ccm_data.py` dari raw data di folder ini.
 | RCA Regional | `Root Caused Category(L2 Assign)`; kosong = *No feedback* |
 | RCA tiket SQA | `Root Caused Tier 8(L2 Assign)` untuk `Dept` = `SQA` |
 | Status | `Business Status`; tiket `Cancel` tidak dihitung |
-| Tiket VA (Veronika) | **belum ada**: isi `is_va` di `COLUMN_MAP` kalau ada kolomnya |
+| Tiket VA (Veronika) | teks `Case Owner : VA (Veronika)` di `Description Fault Sumptomps(...)` |
+| Lokasi pelanggan (peta) | `Latitude :` / `Longitude :` / `Koordinat customer :` di teks deskripsi; kalau tidak ada, `Latitude/Longitude(L2 Assign)`. Lat/long yang tertukar dibetulkan otomatis; di luar Sulawesi/Maluku Utara dibuang |
+
+## Peta lokasi komplain
+
+- Menampilkan tiket `MAP_MONTHS` (default 3) bulan terakhir yang punya koordinat.
+- Koordinat **dibulatkan ke 3 desimal (±110 m)** sebelum masuk JSON (`MAP_DECIMALS`), dan
+  JSON tidak memuat MSISDN/nama. Jangan menaikkan presisi kalau repo/dashboard dibagikan.
+- Tiket call center jarang mencantumkan koordinat, jadi titik di peta didominasi tiket VA.
 
 ## Definisi (bagian CONFIG di script)
 
