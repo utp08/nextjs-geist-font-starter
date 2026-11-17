@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 import warnings
 from datetime import date
@@ -667,12 +668,32 @@ def build_increment(df: pd.DataFrame) -> dict:
     }
 
 
+def publish(label: str) -> None:
+    """Commit only the aggregated JSON (never raw exports) and push to the current branch."""
+    files = [str(p.relative_to(ROOT)) for p in (OUT_FILE, OUT_INCREMENT) if p.exists()]
+
+    def git(*a: str, check: bool = True) -> subprocess.CompletedProcess:
+        return subprocess.run(["git", *a], cwd=ROOT, text=True, capture_output=True, check=check)
+
+    git("add", "--", *files)
+    if git("diff", "--cached", "--quiet", check=False).returncode == 0:
+        print("publish: data tidak berubah, tidak ada yang di-push")
+        return
+    git("commit", "-m", f"Update data CCM {label}", "--", *files)
+    res = git("push", check=False)
+    if res.returncode != 0:
+        sys.exit(f"publish: git push gagal:\n{res.stderr}")
+    print("publish: data ter-push; link online ter-update dalam ±1-2 menit")
+
+
 def main() -> None:
     global RAW_DIR
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--report-month", help="YYYY-MM (default: latest month in the ticket data)")
     ap.add_argument("--raw-dir", type=Path, default=RAW_DIR, help="folder with the raw files")
     ap.add_argument("--out", type=Path, default=OUT_FILE)
+    ap.add_argument("--publish", action="store_true",
+                    help="after building, git commit + push the dashboard JSON (updates the online link)")
     args = ap.parse_args()
     RAW_DIR = args.raw_dir
 
@@ -687,6 +708,8 @@ def main() -> None:
         out_inc = args.out.with_name(OUT_INCREMENT.name)
         out_inc.write_text(json.dumps(inc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"wrote {out_inc} ({len(inc['kabupaten'])} kabupaten)")
+    if args.publish:
+        publish(data["meta"]["report_label"])
     m = data["okr_trend"][-1] if data["okr_trend"] else None
     if m:
         t = m.get("projected_ticket", m["ticket"])
