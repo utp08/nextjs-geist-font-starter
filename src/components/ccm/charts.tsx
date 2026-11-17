@@ -15,7 +15,7 @@ const GRID = <CartesianGrid vertical={false} stroke={C.grid} />;
 
 type TipRow = { label: string; value: ReactNode; color?: string; dashed?: boolean };
 
-function TipBox({ title, rows }: { title: ReactNode; rows: TipRow[] }) {
+export function TipBox({ title, rows }: { title: ReactNode; rows: TipRow[] }) {
   return (
     <div className="rounded-lg border border-[#e3e2dd] bg-white px-3 py-2 text-xs shadow-md min-w-[160px]">
       <div className="font-semibold text-[#0b0b0b] mb-1">{title}</div>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { DailyChart, OkrRatioChart, OkrTicketChart, RcaRegionalChart, RepetitiveChart, SqaRcaChart } from "@/components/ccm/charts";
 import { KabupatenTable } from "@/components/ccm/KabupatenTable";
+import { CcmNav } from "@/components/ccm/CcmNav";
 import dynamic from "next/dynamic";
 
 // Leaflet needs `window`, so the map only renders in the browser.
@@ -95,7 +96,8 @@ export default function CcmMonitoringPage() {
               {meta.data_range ? <span className="text-[#8a8880]"> · raw data {meta.data_range}</span> : null}
             </p>
           </div>
-          <div className="flex items-center gap-3 text-xs text-[#52514e]">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[#52514e]">
+            <CcmNav />
             <span>Diproses {meta.generated_at}</span>
             <button
               onClick={load}

@@ -98,6 +98,9 @@ export const C = {
   s3: "#1baf7a",
   s4: "#eda100",
   s5: "#e87ba4",
+  s6: "#008300",
+  s7: "#6250d6",
+  s8: "#e34948",
   neutral: "#c3c1b9",
   ink: "#0b0b0b",
   ink2: "#52514e",
@@ -116,3 +119,64 @@ export const RCA_COLORS: Record<string, string> = {
   Others: C.s4,
   Quality: C.s5,
 };
+
+/** Categorical slots in fixed order (reference palette, light). */
+export const SERIES = [C.s1, C.s2, C.s3, C.s4, C.s5, C.s6, C.s7, C.s8];
+
+// ---------------------------------------------------------------- page 2
+
+export interface IncrementRankRow {
+  kab: string;
+  nop: string;
+  current: number;
+  baseline: number | null;
+  delta: number | null;
+}
+
+export interface IncrementMonth {
+  label: string;
+  is_mtd: boolean;
+  days: number;
+  days_in_month: number;
+  baseline_note: string;
+  has_baseline: boolean;
+  baseline_per_day: Record<string, number>;
+  ranking: IncrementRankRow[];
+  focus: string[];
+  notes: Record<string, { issue: string; text: string }>;
+}
+
+export interface IncrementSite {
+  site: string;
+  kec: string;
+  n: number;
+  rca: string;
+  detail: string;
+  first: string;
+  last: string;
+}
+
+export interface KabMonth {
+  current: number;
+  kecamatan: string[];
+  daily: ({ day: number } & Record<string, number>)[];
+  sites: IncrementSite[];
+  rca: Record<string, number>;
+  va: number;
+}
+
+export interface KabData {
+  nop: string;
+  provinsi: string;
+  trend: { date: string; n: number }[];
+  months: Record<string, KabMonth>;
+}
+
+export type KpiRow = { date: string } & Record<string, number | null | string>;
+
+export interface CcmIncrementData {
+  meta: { months: string[]; default_month: string; data_range: string; generated_at: string; rca_categories: string[] };
+  months: Record<string, IncrementMonth>;
+  kabupaten: Record<string, KabData>;
+  kpi: Record<string, KpiRow[]>;
+}

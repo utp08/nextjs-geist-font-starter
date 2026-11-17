@@ -53,6 +53,26 @@ File itu dibuat oleh `scripts/build_ccm_data.py` dari raw data di folder ini.
   JSON tidak memuat MSISDN/nama. Jangan menaikkan presisi kalau repo/dashboard dibagikan.
 - Tiket call center jarang mencantumkan koordinat, jadi titik di peta didominasi tiket VA.
 
+## Halaman 2: Increment per Kabupaten (`/increment`)
+
+Dibuat dari raw data yang sama (`public/data/ccm_increment.json`), untuk setiap bulan di raw data:
+
+- **Ranking kabupaten** berdasarkan kenaikan vs BL (atau jumlah tiket kalau BL belum ada).
+- **2 panel drill-down**: tiket harian per kecamatan, tren harian vs rata-rata BL, peta lokasi
+  pelanggan, dan top site + RCA. Panel bisa diganti lewat tombol Kiri/Kanan di ranking atau dropdown.
+- **Narasi panel** ditulis di `highlights.txt`:
+
+  ```
+  [increment Sep'26]
+  - KOTA MAKASSAR | FO cut | CCM tickets in Kota Makassar increased on 12–13 September, ...
+  ```
+
+  Kabupaten yang ditulis di sini otomatis jadi panel fokus (maks 2). Tanpa narasi, panel
+  memilih 2 kenaikan terbesar dan menampilkan narasi otomatis (puncak harian, kecamatan, RCA, site).
+- **Packet loss / delay / jitter (opsional)**: buat `data/raw/kpi_daily.csv` dengan kolom
+  `date, kabupaten`, lalu kolom KPI apa saja (contoh: `kpi_daily_template.csv`). Grafiknya muncul
+  di panel kabupaten yang ada datanya.
+
 ## Definisi (bagian CONFIG di script)
 
 - **OKR Ratio** = tiket ÷ subscriber.

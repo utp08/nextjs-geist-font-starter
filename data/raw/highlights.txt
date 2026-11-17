@@ -8,3 +8,10 @@
 - Makassar had the largest reduction (-16), but remained the top CCM contributor.
 - Ticket spikes: 12 Sep (Makassar backbone FO cut) and 21–26 Sep (Halmahera Selatan SKKL issue).
 - Power issues remained a major contributor following rolling blackouts across 5/7 NOPs, with incomplete recovery.
+
+# Halaman 2 (Increment). Satu section per bulan: [increment Sep'26]
+# Format tiap baris: KABUPATEN | isu singkat | narasi
+# Kabupaten yang ditulis di sini jadi panel fokus (maks 2); kalau kosong, dipilih otomatis (kenaikan terbesar vs BL).
+[increment Sep'26]
+- KOTA MAKASSAR | FO cut | CCM tickets in Kota Makassar increased on 12–13 September, mainly contributed by sites in Biringkanaya and Tamalanrea districts, following a backbone FO cut.
+- HALMAHERA SELATAN | FO cut SKKL | Complaints in Halmahera Selatan increased by +21 tickets (+150%), aligned with the SKKL FO cut on ME-D7-LBH (Eth-Trunk25) – SME-D7-OBI and ME-D7-LBH (Eth-Trunk23) – SME2-D7-OBI. Update 28 Sep 2026: issue resolved after 9d 16h 14m 59s downtime.

@@ -35,6 +35,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "data" / "raw"
 OUT_FILE = ROOT / "public" / "data" / "ccm_dashboard.json"
+OUT_INCREMENT = ROOT / "public" / "data" / "ccm_increment.json"   # page 2
 
 # ---------------------------------------------------------------------------
 # CONFIG - adjust to match your raw export
@@ -63,6 +64,11 @@ COLUMN_MAP: dict[str, str | list[str] | None] = {
 
 # VA (Veronika) tickets are recognised from "Case Owner : VA (Veronika)" in the description text.
 VA_CASE_OWNER_PATTERN = r"\bVA\b|veronika"
+
+# Page 2 - kabupaten increment
+INCREMENT_MAX_KECAMATAN = 7    # stacked kecamatan per chart; the rest folds into "Lainnya"
+INCREMENT_TOP_SITES = 8
+INCREMENT_MIN_TICKETS = 3      # kabupaten with fewer tickets in every month are left out of the drill-down
 
 # Complaint map
 MAP_MONTHS = 3                 # months of complaint points sent to the map (report month and earlier)
@@ -305,9 +311,7 @@ def repetitive_counts(cur: pd.DataFrame) -> tuple[int, int]:
 HAS_VA = True   # VA comes from Case Owner text unless COLUMN_MAP["is_va"] names a column
 
 
-def build(report_month: str | None) -> dict:
-    print("loading raw data ...")
-    df = load_tickets()
+def build(report_month: str | None, df: pd.DataFrame | None) -> dict:
     hist = load_history()
     subs = load_subscribers()
 
@@ -512,6 +516,157 @@ def build(report_month: str | None) -> dict:
     }
 
 
+# ------------------------------------------------------------------ page 2
+
+
+def load_increment_notes() -> dict[str, dict[str, dict[str, str]]]:
+    """highlights.txt sections like [increment Sep'26] with lines `KABUPATEN | issue | narrative`."""
+    path = RAW_DIR / "highlights.txt"
+    notes: dict[str, dict[str, dict[str, str]]] = {}
+    if not path.exists():
+        return notes
+    month = None
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            sec = line[1:-1].strip()
+            month = sec.split(None, 1)[1].strip() if sec.lower().startswith("increment ") else None
+            continue
+        if month:
+            parts = [x.strip() for x in re.sub(r"^[-•]\s*", "", line).split("|", 2)]
+            if len(parts) == 3:
+                notes.setdefault(month, {})[parts[0].upper()] = {"issue": parts[1], "text": parts[2]}
+    return notes
+
+
+def load_kpi() -> dict[str, list[dict]]:
+    """Optional data/raw/kpi_daily.csv: date, kabupaten, then any numeric KPI columns."""
+    path = RAW_DIR / "kpi_daily.csv"
+    if not path.exists():
+        return {}
+    k = pd.read_csv(path)
+    k.columns = [c.strip() for c in k.columns]
+    k["date"] = pd.to_datetime(k["date"], dayfirst=True, errors="coerce").dt.strftime("%Y-%m-%d")
+    k["kabupaten"] = k["kabupaten"].astype(str).str.strip().str.upper()
+    metrics = [c for c in k.columns if c not in ("date", "kabupaten")]
+    out: dict[str, list[dict]] = {}
+    for kab, g in k.dropna(subset=["date"]).sort_values("date").groupby("kabupaten"):
+        out[kab] = [{"date": r["date"], **{m: (None if pd.isna(r[m]) else float(r[m])) for m in metrics}}
+                    for _, r in g.iterrows()]
+    print(f"kpi_daily.csv: {len(out)} kabupaten, metrics {metrics}")
+    return out
+
+
+def build_increment(df: pd.DataFrame) -> dict:
+    cov_start, cov_end = df["date"].min(), df["date"].max()
+    months = sorted(df["month"].unique())[-MAP_MONTHS:]
+    notes = load_increment_notes()
+
+    # kabupaten -> NOP name (from tickets handled by a NOP team, e.g. "... Productivity Makassar")
+    nop_t = df[df["dept"].str.upper() == "NOP"]
+    nop_name = nop_t["nop"].str.replace(r"(?i)^network operations and productivity\s*", "", regex=True).str.upper()
+    kab_nop = nop_name.groupby(nop_t["kabupaten"]).agg(lambda s: s.value_counts().index[0]).to_dict()
+    kab_prov = df[df["provinsi"] != ""].groupby("kabupaten")["provinsi"].agg(lambda s: s.value_counts().index[0]).to_dict()
+
+    out_months: dict[str, dict] = {}
+    kab_data: dict[str, dict] = {}
+    keep = set()
+    for m in months:
+        cur = df[(df["month"] == m) & (df["kabupaten"] != "")]
+        is_mtd = cov_end.to_period("M") == m and cov_end.day < m.days_in_month
+        days = int(cov_end.day) if is_mtd else m.days_in_month
+        b_lo = max((m - BASELINE_MONTHS).start_time.normalize(), cov_start)
+        b_hi = min((m - 1).end_time.normalize(), cov_end)
+        base_days = (b_hi - b_lo).days + 1 if b_hi >= b_lo else 0
+        base = df[(df["date"] >= b_lo) & (df["date"] <= b_hi)] if base_days else df.iloc[0:0]
+        base_k = base.groupby("kabupaten").size()
+        cur_k = cur.groupby("kabupaten").size()
+
+        ranking = []
+        for kab, n in cur_k.items():
+            bl = round(base_k.get(kab, 0) / base_days * days, 1) if base_days else None
+            ranking.append({"kab": kab, "nop": kab_nop.get(kab, ""), "current": int(n), "baseline": bl,
+                            "delta": None if bl is None else round(n - bl, 1)})
+        ranking.sort(key=lambda r: (r["delta"] if r["delta"] is not None else r["current"]), reverse=True)
+
+        label = month_label(m)
+        month_notes = notes.get(label, {})
+        focus = [k for k in month_notes if k in cur_k.index][:2]
+        for r in ranking:
+            if len(focus) >= 2:
+                break
+            if r["kab"] not in focus:
+                focus.append(r["kab"])
+
+        out_months[label] = {
+            "label": label + (" MTD" if is_mtd else ""),
+            "is_mtd": bool(is_mtd),
+            "days": days,
+            "days_in_month": m.days_in_month,
+            "baseline_note": (f"BL = rata-rata harian {b_lo:%d %b}–{b_hi:%d %b} ({base_days} hari) × {days} hari"
+                              if base_days else "BL belum tersedia (raw data bulan sebelumnya belum ada); ranking memakai jumlah tiket"),
+            "has_baseline": bool(base_days),
+            "baseline_per_day": {k: round(v / base_days, 2) for k, v in base_k.items()} if base_days else {},
+            "ranking": ranking,
+            "focus": focus,
+            "notes": month_notes,
+        }
+
+        for kab, g in cur.groupby("kabupaten"):
+            if len(g) < INCREMENT_MIN_TICKETS and kab not in focus:
+                continue
+            keep.add(kab)
+            kec = g["kecamatan"].str.upper().replace("", "(KOSONG)")
+            top_kec = kec.value_counts().index[:INCREMENT_MAX_KECAMATAN].tolist()
+            kec_f = kec.where(kec.isin(top_kec), "LAINNYA")
+            order = top_kec + (["LAINNYA"] if (kec_f == "LAINNYA").any() else [])
+            pivot = pd.crosstab(g["day"], kec_f).reindex(range(1, days + 1), fill_value=0)
+            daily = [{"day": int(d), **{c: int(row.get(c, 0)) for c in order}} for d, row in pivot.iterrows()]
+
+            sites = []
+            gs = g[g["site_id"] != ""]
+            for site, sg in sorted(gs.groupby("site_id"), key=lambda kv: -len(kv[1]))[:INCREMENT_TOP_SITES]:
+                rc = sg.loc[sg["rca"] != "No feedback", "rca"].value_counts()
+                det = sg.loc[sg["sqa_rca"] != "", "sqa_rca"].value_counts()
+                sites.append({"site": site, "kec": sg["kecamatan"].str.upper().mode().iat[0] if (sg["kecamatan"] != "").any() else "",
+                              "n": int(len(sg)), "rca": rc.index[0] if len(rc) else "No feedback",
+                              "detail": det.index[0] if len(det) else "",
+                              "first": sg["create_date"].min().strftime("%d %b"), "last": sg["create_date"].max().strftime("%d %b")})
+            rca = g["rca"].value_counts()
+            kab_data.setdefault(kab, {"months": {}})["months"][label] = {
+                "current": int(len(g)),
+                "kecamatan": order,
+                "daily": daily,
+                "sites": sites,
+                "rca": {c: int(rca.get(c, 0)) for c in RCA_CATEGORIES},
+                "va": int(g["is_va"].sum()),
+            }
+
+    all_days = pd.date_range(cov_start, cov_end, freq="D")
+    for kab in keep:
+        per_day = df[df["kabupaten"] == kab].groupby("date").size().reindex(all_days, fill_value=0)
+        kab_data[kab].update({
+            "nop": kab_nop.get(kab, ""),
+            "provinsi": kab_prov.get(kab, ""),
+            "trend": [{"date": d.strftime("%Y-%m-%d"), "n": int(v)} for d, v in per_day.items()],
+        })
+
+    return {
+        "meta": {
+            "months": [month_label(m) for m in months],
+            "default_month": month_label(months[-1]),
+            "data_range": f"{cov_start:%d %b %Y} – {cov_end:%d %b %Y}",
+            "generated_at": date.today().isoformat(),
+            "rca_categories": RCA_CATEGORIES,
+        },
+        "months": out_months,
+        "kabupaten": kab_data,
+        "kpi": load_kpi(),
+    }
+
+
 def main() -> None:
     global RAW_DIR
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -521,10 +676,17 @@ def main() -> None:
     args = ap.parse_args()
     RAW_DIR = args.raw_dir
 
-    data = build(args.report_month)
+    print("loading raw data ...")
+    df = load_tickets()
+    data = build(args.report_month, df)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"wrote {args.out}")
+    if df is not None:
+        inc = build_increment(df)
+        out_inc = args.out.with_name(OUT_INCREMENT.name)
+        out_inc.write_text(json.dumps(inc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"wrote {out_inc} ({len(inc['kabupaten'])} kabupaten)")
     m = data["okr_trend"][-1] if data["okr_trend"] else None
     if m:
         t = m.get("projected_ticket", m["ticket"])
